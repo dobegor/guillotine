@@ -12,6 +12,7 @@ import (
 	"math/rand"
 	"os"
 	"runtime/pprof"
+	"strconv"
 	"time"
 )
 
@@ -22,17 +23,17 @@ type Solution struct {
 
 func main() {
 	var nboards = flag.Int("nboards", 8, "Number of boards")
-	var population = flag.Int("population", 300, "Population size")
+	var population = flag.Int("population", 500, "Population size")
 	var tsize = flag.Int("tsize", 5, "Tournament size")
 	var eliteSize = flag.Int("eliteSize", 10, "Elite size")
 	var psel = flag.Float64("psel", 0.8, "Tournament selection probability")
-	var cx = flag.String("crossover", "uniform", "Crossover strategy")
+	var cx = flag.String("crossover", "twopoint", "Crossover strategy")
 	var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
 	var weightMutateMean = flag.Float64("weightMutateMean", 10,
 		"Mean number of gene weights to be mutated on each individual")
 	var configMutateMean = flag.Float64("configMutateMean", 10,
 		"Mean number of pick configs to be mutated on each individual")
-	var generations = flag.Int("generations", 1000, "Number of generations")
+	var generations = flag.Int("generations", 800, "Number of generations")
 	var seed = flag.Int64("seed", time.Now().Unix(), "Random seed for repeatable runs")
 
 	flag.Parse()
@@ -110,14 +111,14 @@ func main() {
 	gc := draw2dimg.NewGraphicContext(dest)
 
 	// Set some properties
-	gc.SetFillColor(color.RGBA{0xff, 0xff, 0xff, 0xff})
+	gc.SetFillColor(color.RGBA{0xff, 0xff, 0xff, 0x00})
 	//gc.SetStrokeColor(color.RGBA{0x44, 0x44, 0x44, 0xff})
 	gc.SetStrokeColor(color.RGBA{0xff, 0x00, 0x00, 0xff})
 
 	gc.SetLineWidth(5)
-	gc.DPI *= 10
+	gc.SetDPI(400)
 
-	for _, rect := range drawing.Boxes {
+	for i, rect := range drawing.Boxes {
 		gc.MoveTo(float64(rect.X), float64(rect.Y))
 		gc.LineTo(float64(rect.X+rect.Width), float64(rect.Y))
 		gc.MoveTo(float64(rect.X+rect.Width), float64(rect.Y))
@@ -128,6 +129,10 @@ func main() {
 		gc.LineTo(float64(rect.X), float64(rect.Y))
 		gc.Close()
 		gc.FillStroke()
+
+		gc.SetFontSize(4)
+		gc.SetFillColor(color.RGBA{0x00, 0x00, 0x00, 0xff})
+		gc.FillStringAt(strconv.Itoa(i), float64(rect.X+rect.Width/2), float64(rect.Y+rect.Height/2))
 	}
 
 	// Save to file
